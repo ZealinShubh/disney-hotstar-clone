@@ -1,21 +1,49 @@
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from 'react-router-dom';
 import {auth,provider} from '../firebase'
+import { 
+    selectUserName,
+    selectUserPhoto,
+    setUserLoginDetails,
+} from "../features/users/userSlice";
 
 const Header = (props) =>{
+    const dispatch = useDispatch()
+    const navigate = useNavigate();
+    const userName = useSelector(selectUserName)
+    const userPhoto = useSelector(selectUserPhoto)
 
     const handleAuth = () =>{
         auth.signInWithPopup(provider).then((result) =>{
-            console.log(result)
+            setUser(result.user);
+            // navigate('/home');
         }).catch((error) => {
             alert(error.message);
         });
     };
+
+    const setUser = (user) => {
+        dispatch(
+            setUserLoginDetails({
+                name: user.displayName,
+                email: user.email,
+                photo: user.photoURL,
+            })
+        )
+    }
 
     return (
     <Nav>
         <Logo>
             <img src="/images/logo.svg" alt="" />
         </Logo>
+
+        {
+            !userName ?
+            <Login onClick={handleAuth}>Login</Login>
+            :(
+            <>
         <NavMenu>
            <a href='/home'>
             <img src="/images/home-icon.svg" alt="HOME" />
@@ -42,7 +70,9 @@ const Header = (props) =>{
             <span>SERIES</span>
            </a>
         </NavMenu>
-        <Login onClick={handleAuth}>Login</Login>
+        <UserImg src={userPhoto} alt={userName} />
+        </>
+        )}
     </Nav>
     );
 };
@@ -157,6 +187,10 @@ cursor: pointer;
     border-color: transparent;
 }
 
+`;
+
+const UserImg = styled.img`
+height: 100%;
 `;
 
 export default Header;
