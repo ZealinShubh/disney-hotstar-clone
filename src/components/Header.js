@@ -7,12 +7,23 @@ import {
     selectUserPhoto,
     setUserLoginDetails,
 } from "../features/users/userSlice";
+import { useEffect } from "react";
 
 const Header = (props) =>{
     const dispatch = useDispatch()
     const navigate = useNavigate();
     const userName = useSelector(selectUserName)
     const userPhoto = useSelector(selectUserPhoto)
+
+    useEffect(() => {
+      auth.onAuthStateChanged(async (user) =>{
+        if (user){
+            setUser(user);
+            navigate("/home");
+        }
+      });
+    }, [userName])
+    
 
     const handleAuth = () =>{
         auth.signInWithPopup(provider).then((result) =>{
@@ -31,7 +42,7 @@ const Header = (props) =>{
                 photo: user.photoURL,
             })
         )
-    }
+    };
 
     return (
     <Nav>
