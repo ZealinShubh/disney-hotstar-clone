@@ -1,31 +1,25 @@
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { selectRecommend } from '../features/movie/movieSlice';
 
 const Recommends = (props) => {
+    const movies = useSelector(selectRecommend);
+
     return (
         <Container>
             <h4>Recommended for you</h4>
             <Content>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="https://images.unsplash.com/photo-1528041119984-da3a9f8d04d1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2009&q=80" alt="" />
-                    </Link>
-                </Wrap>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="https://images.unsplash.com/photo-1528041119984-da3a9f8d04d1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2009&q=80" alt="" />
-                    </Link>
-                </Wrap>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="https://images.unsplash.com/photo-1528041119984-da3a9f8d04d1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2009&q=80" alt="" />
-                    </Link>
-                </Wrap>
-                <Wrap>
-                    <Link to='/'>
-                        <img src="https://images.unsplash.com/photo-1528041119984-da3a9f8d04d1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2009&q=80" alt="" />
-                    </Link>
-                </Wrap>
+                {
+                    movies && movies.map((movie, key) => (
+                        <Wrap key={key}>
+                            {movie.id}
+                            <Link to={'/detail/' + movie.id}>
+                                <img src={movie.cardImg} alt={movie.title} />
+                            </Link>
+                        </Wrap>
+                    ))
+                }
             </Content>
         </Container>
     );
