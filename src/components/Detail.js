@@ -1,14 +1,35 @@
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import db from "../firebase";
 
 const Detail = (props) => {
+    const { id } = useParams();
+    const [detailData, setDetailData] = useState({});
+
+    useEffect(() => {
+        db.collection('movies').doc(id)
+        .get()
+        .then((doc) => {
+            if (doc.exists){
+                setDetailData(doc.data());
+            } else {
+                console.log('no such document in firebase')
+            }
+        })
+        .catch((error) => {
+            console.log("Error in getting document:", error);
+        });
+    }, [id]);
+
     return(
         <Container>
             <Background>
-                <img src='https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/223DAE104BE1175F374C4AACAC0EB5B8B0DB9C49839AA2E10085533DDFE07A8E/scale?width=1440&aspectRatio=1.78&format=jpeg' alt='' />
+                <img src={detailData.backgroundImg} alt={detailData.title} />
             </Background>
 
             <ImageTitle>
-                <img src="https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/47A6FB38D95B3A5EF5583C9EED0B698ED2992CBA4AC7222DD3269DC92DFA03A6/scale?width=1440&aspectRatio=1.78" alt="" />
+                <img src={detailData.titleImg} alt={detailData.title} />
             </ImageTitle>
             <ContentMeta>
                 <Controls>
@@ -31,10 +52,10 @@ const Detail = (props) => {
                     </GroupWatch>
                 </Controls>
                 <SubTitle>
-                    Subtitle
+                    {detailData.subTitle}
                 </SubTitle>
                 <Description>
-                    Description
+                    {detailData.description}
                 </Description>
             </ContentMeta>
         </Container>
@@ -204,6 +225,13 @@ min-height: 20px;
 `;
 
 const Description = styled.div`
+line-height: 1.4;
+font-size: 20px;
+padding: 16px 0px;
+color: rgb(249, 249, 249);
 
+@media(max-width: 768px){
+    font-size: 14px;
+}
 `;
 export default Detail;
