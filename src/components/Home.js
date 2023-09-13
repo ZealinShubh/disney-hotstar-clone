@@ -11,45 +11,56 @@ import db from "../firebase";
 import { setMovies } from '../features/movie/movieSlice';
 import { selectUserName } from '../features/users/userSlice';
 
-const Home = (props) =>{
+const Home = () =>{
     const dispatch =useDispatch();
     const userName = useSelector(selectUserName);
-    let recommends = [];
-    let newDisneys = [];
-    let originals = [];
-    let trending = [];
 
     useEffect(() => {
-        db.collection('movies').onSnapshot((snapshot) => {
-            snapshot.docs.map((doc) => {
+        let isMounted = true; // Add this variable to track component mount status
+
+        const unsubscribe = db.collection('movies').onSnapshot((snapshot) => {
+            const tempRecommends = [];
+            const tempNewDisneys = [];
+            const tempOriginals = [];
+            const tempTrending = [];
+
+            snapshot.docs.forEach((doc) => {
                 switch(doc.data().type) {
                     case "recommend":
-                        recommends = [...recommends, { id: doc.id, ...doc.data() }];
+                        tempRecommends.push({ id: doc.id, ...doc.data() });
                         break;
 
                     case "new":
-                        newDisneys = [...newDisneys, { id: doc.id, ...doc.data() }];
+                        tempNewDisneys.push({ id: doc.id, ...doc.data() });
                         break;
 
                     case "original":
-                        originals = [...originals, { id: doc.id, ...doc.data() }];
+                        tempOriginals.push({ id: doc.id, ...doc.data() });
                         break;
 
                     case "trending":
-                        trending = [...trending, { id: doc.id, ...doc.data() }];
+                        tempTrending.push({ id: doc.id, ...doc.data() });
                         break;
                 }
             });
 
-        dispatch(
-            setMovies({
-                recommend: recommends,
-                newDisney: newDisneys,
-                original: originals,
-                trending: trending,
-            })
-        );
+            if (isMounted) {
+                dispatch(
+                    setMovies({
+                        recommend: tempRecommends,
+                        newDisney: tempNewDisneys,
+                        original: tempOriginals,
+                        trending: tempTrending,
+                    })
+                );
+            }
         });
+
+        // Cleanup function
+        return () => {
+            isMounted = false; // Set isMounted to false when component is unmounted
+            unsubscribe(); // Unsubscribe from the snapshot listener
+        };
     }, [userName]);
 
     return (
